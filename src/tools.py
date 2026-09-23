@@ -9,19 +9,13 @@ def web_search(query: str) -> str:
     Search the web using DuckDuckGo.
 
     Args:
-        query: The search query.
+        query: Search query.
 
     Returns:
-        Formatted search results containing titles,
-        URLs, and descriptions.
+        Formatted web search results.
     """
 
     try:
-
-        # -------------------------------------------------
-        # Perform web search
-        # -------------------------------------------------
-
         results = DDGS().text(
             query,
             region="us-en",
@@ -29,23 +23,12 @@ def web_search(query: str) -> str:
             max_results=8,
         )
 
-        # -------------------------------------------------
-        # Check if results exist
-        # -------------------------------------------------
-
         if not results:
             return "No search results were found."
 
-        # -------------------------------------------------
-        # Format results
-        # -------------------------------------------------
-
         formatted_results = []
 
-        for index, result in enumerate(
-            results,
-            start=1
-        ):
+        for index, result in enumerate(results, start=1):
 
             title = result.get(
                 "title",
@@ -81,8 +64,5 @@ Summary:
 
     except Exception as e:
 
-        return (
-            "The web search failed. "
-            f"Error: {str(e)}"
-        )
+        return f"Search failed: {str(e)}"
 ```
