@@ -1,0 +1,6 @@
+```text
+crewai==1.15.22
+ddgs==9.10.0
+streamlit==1.50.0
+python-dotenv==1.1.1
+```
