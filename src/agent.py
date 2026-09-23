@@ -6,44 +6,28 @@ from crewai import Agent, Crew, LLM, Process, Task
 from src.tools import web_search
 
 
-# ---------------------------------------------------------
-# Gemini configuration
-# ---------------------------------------------------------
-
 MODEL_NAME = "gemini/gemini-3.5-flash"
 
-
-# ---------------------------------------------------------
-# Create CrewAI research crew
-# ---------------------------------------------------------
 
 def create_research_crew() -> Crew:
     """
     Create the single-agent research crew.
     """
 
-    # Get Gemini API key
     api_key = os.getenv("GEMINI_API_KEY")
 
     if not api_key:
         raise ValueError(
-            "GEMINI_API_KEY environment variable was not found."
+            "GEMINI_API_KEY was not found."
         )
 
-    # -----------------------------------------------------
     # Create Gemini LLM
-    # -----------------------------------------------------
-
     gemini_llm = LLM(
         model=MODEL_NAME,
         api_key=api_key,
-        temperature=0.2,
     )
 
-    # -----------------------------------------------------
-    # Create research agent
-    # -----------------------------------------------------
-
+    # Create the single research agent
     researcher = Agent(
         role="Senior Research Analyst",
 
@@ -54,16 +38,13 @@ def create_research_crew() -> Crew:
         ),
 
         backstory=(
-            "You are an experienced research analyst who specializes "
-            "in investigating topics using information from the web. "
-            "You carefully compare information from multiple sources, "
-            "identify important facts, avoid unsupported claims, "
-            "and write clear and useful research reports."
+            "You are an experienced research analyst. "
+            "You investigate topics carefully, compare information "
+            "from multiple sources, identify important facts, "
+            "avoid unsupported claims, and write clear reports."
         ),
 
-        tools=[
-            web_search
-        ],
+        tools=[web_search],
 
         llm=gemini_llm,
 
@@ -72,89 +53,60 @@ def create_research_crew() -> Crew:
         allow_delegation=False,
     )
 
-    # -----------------------------------------------------
-    # Create research task
-    # -----------------------------------------------------
-
+    # Create the research task
     research_task = Task(
-
         description="""
-        Conduct thorough research on the following topic:
+        Research the following topic:
 
         {topic}
 
-        Your job is to create a high-quality research report
-        based on information discovered through web searches.
+        Search the web and create a high-quality research report.
 
-        Follow these requirements:
+        Requirements:
 
         1. Search the web multiple times.
+        2. Use multiple sources.
+        3. Prefer reliable sources.
+        4. Do not invent facts or sources.
+        5. Distinguish facts from opinions and predictions.
+        6. If sources disagree, explain the disagreement.
+        7. Include source URLs.
 
-        2. Use different search queries when appropriate.
-
-        3. Use multiple sources instead of relying on a single source.
-
-        4. Prefer reliable sources such as:
-           - Government websites
-           - Universities
-           - Research institutions
-           - Official organizations
-           - Peer-reviewed research
-           - Established news organizations
-           - Reputable industry organizations
-
-        5. Do not invent statistics, studies, quotations,
-           facts, or sources.
-
-        6. Clearly distinguish factual information from opinions,
-           predictions, or interpretations.
-
-        7. If reliable sources disagree, explain the disagreement.
-
-        8. Include URLs for the important sources used.
-
-        9. Focus on information that is relevant to the research topic.
-
-        10. Write the final report using Markdown.
-
-        Use this structure:
+        Use this report structure:
 
         # Research Report: [Topic]
 
         ## Executive Summary
 
-        Provide a concise summary of the most important findings.
+        Summarize the most important findings.
 
         ## Introduction
 
-        Explain the topic and why it is important.
+        Explain the topic and why it matters.
 
         ## Key Findings
 
-        Present the major findings discovered during the research.
+        Present the major findings.
 
         ## Detailed Analysis
 
-        Explain the important findings in greater detail.
+        Explain the findings in detail.
 
         ## Important Perspectives
 
-        Discuss relevant perspectives, disagreements,
-        limitations, or uncertainties.
+        Discuss relevant perspectives,
+        disagreements, limitations, and uncertainties.
 
         ## Conclusion
 
-        Summarize the main findings without introducing
-        unsupported new information.
+        Summarize the main findings.
 
         ## Sources
 
-        Provide a numbered list of important sources.
-        Include the source title and URL.
+        Provide a numbered list of important sources
+        with their URLs.
 
-        The final response must be a polished research report.
-
-        Do not describe your internal reasoning or research process.
+        Return only the final research report.
         """,
 
         expected_output="""
@@ -172,21 +124,11 @@ def create_research_crew() -> Crew:
         agent=researcher,
     )
 
-    # -----------------------------------------------------
-    # Create Crew
-    # -----------------------------------------------------
-
+    # Create the crew
     crew = Crew(
-        agents=[
-            researcher
-        ],
-
-        tasks=[
-            research_task
-        ],
-
+        agents=[researcher],
+        tasks=[research_task],
         process=Process.sequential,
-
         verbose=True,
     )
 
